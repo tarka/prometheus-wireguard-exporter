@@ -60,7 +60,7 @@ pub(crate) struct RemoteEndpoint {
 
 #[derive(Debug, Clone)]
 pub(crate) enum Endpoint {
-    Local(LocalEndpoint),
+    Local,
     Remote(RemoteEndpoint),
 }
 
@@ -96,12 +96,7 @@ impl TryFrom<&str> for WireGuard {
 
             let endpoint = if v.len() == 5 {
                 // this is the local interface
-                Endpoint::Local(LocalEndpoint {
-                    public_key: v[1].to_owned(),
-                    private_key: v[2].into(),
-                    local_port: v[3].parse::<u16>().unwrap(),
-                    persistent_keepalive: to_bool(v[4]),
-                })
+                Endpoint::Local
             } else {
                 // remote endpoint
                 let public_key = v[1].to_owned();
@@ -403,7 +398,7 @@ wg0\tsUsR6xufQQ8Tf0FuyY9tfEeYdhVMeFelr4ZMUrj+B0E=\t(none)\t10.211.123.128:51820\
         assert!(a.interfaces["wg0"].len() == 18);
 
         let e1 = match &a.interfaces["wg0"][1] {
-            Endpoint::Local(_) => panic!(),
+            Endpoint::Local => panic!(),
             Endpoint::Remote(re) => re,
         };
         assert_eq!(
@@ -415,7 +410,7 @@ wg0\tsUsR6xufQQ8Tf0FuyY9tfEeYdhVMeFelr4ZMUrj+B0E=\t(none)\t10.211.123.128:51820\
         assert_eq!(e1.allowed_ips, "10.90.0.10/32,10.0.1.0/24".to_owned());
 
         let e17 = match &a.interfaces["wg0"][17] {
-            Endpoint::Local(_) => panic!(),
+            Endpoint::Local => panic!(),
             Endpoint::Remote(re) => re,
         };
         assert_eq!(
@@ -515,7 +510,7 @@ wireguard_latest_handshake_seconds{interface=\"wg0\",public_key=\"sUsR6xufQQ8Tf0
         assert!(a.interfaces["wg0"].len() == 6);
 
         let e1 = match &a.interfaces["wg0"][1] {
-            Endpoint::Local(_) => panic!(),
+            Endpoint::Local => panic!(),
             Endpoint::Remote(re) => re,
         };
 
