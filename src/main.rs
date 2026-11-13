@@ -1,6 +1,5 @@
 use anyhow::Context;
 use clap::{crate_authors, crate_name, crate_version, value_parser, Arg};
-use hyper::{Body, Request};
 use log::{debug, info, trace};
 use prometheus_exporter_base::prelude::{Authorization, ServerOptions};
 use std::env;
@@ -20,7 +19,6 @@ use std::sync::Arc;
 use wireguard_config::peer_entry_hashmap_try_from;
 
 async fn perform_request(
-    _req: Request<Body>,
     options: Arc<Options>,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let interfaces_to_handle = match &options.interfaces {
@@ -230,8 +228,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         authorization: Authorization::None,
     };
 
-    render_prometheus(server_options, options, |request, options| {
-        Box::pin(perform_request(request, options))
+    render_prometheus(server_options, options, |_request, options| {
+        Box::pin(perform_request(options))
     })
     .await;
 
