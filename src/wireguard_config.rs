@@ -1,6 +1,6 @@
 use crate::exporter_error::PeerEntryParseError;
 use crate::FriendlyDescription;
-use log::debug;
+use tracing::debug;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::convert::TryInto;

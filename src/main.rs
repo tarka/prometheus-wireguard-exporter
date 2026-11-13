@@ -1,6 +1,7 @@
 use anyhow::Context;
 use clap::{crate_authors, crate_name, crate_version, value_parser, Arg};
-use log::{debug, info, trace};
+use tracing::level_filters::LevelFilter;
+use tracing::{debug, info, trace};
 use prometheus_exporter_base::prelude::{Authorization, ServerOptions};
 use std::env;
 mod options;
@@ -25,7 +26,7 @@ async fn perform_request(
         Some(interfaces_str) => interfaces_str.clone(),
         None => vec!["all".to_owned()],
     };
-    log::trace!("interfaces_to_handle == {:?}", interfaces_to_handle);
+    trace!("interfaces_to_handle == {:?}", interfaces_to_handle);
 
     let peer_entry_contents = options
         .extract_names_config_files
@@ -108,6 +109,18 @@ async fn perform_request(
         panic!();
     }
 }
+
+fn init_logging(verbose: bool) {
+    let log_level = verbose.then_some(LevelFilter::TRACE)
+        .unwrap_or(LevelFilter::INFO);
+
+    tracing_subscriber::fmt()
+        .with_max_level(log_level)
+        .init();
+
+    info!("Logging initialised");
+}
+
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -196,19 +209,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
          .get_matches();
 
     let options = Options::from_claps(&matches);
-
-    if options.verbose {
-        env::set_var(
-            "RUST_LOG",
-            format!("{}=trace,prometheus_exporter_base=trace", crate_name!()),
-        );
-    } else {
-        env::set_var(
-            "RUST_LOG",
-            format!("{}=info,prometheus_exporter_base=info", crate_name!()),
-        );
-    }
-    env_logger::init();
+    init_logging(options.verbose);
 
     info!(
         "{} v{} starting...",

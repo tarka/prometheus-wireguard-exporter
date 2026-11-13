@@ -2,7 +2,7 @@ use crate::exporter_error::ExporterError;
 use crate::options::Options;
 use crate::wireguard_config::PeerEntryHashMap;
 use crate::FriendlyDescription;
-use log::{debug, trace};
+use tracing::{debug, trace};
 use prometheus_exporter_base::{MetricType, PrometheusInstance, PrometheusMetric};
 use regex::Regex;
 use std::collections::HashMap;
